@@ -1,8 +1,10 @@
+
+
 /*
   bluetooth test: 
   http://www.kccistc.net/
-  작성일 : 2026.03.17
-  작성자 : AIoT 임베디드 KSH
+  작성일 : 2026.06.02
+  작성자 : AIoT 임베디드 KJM
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +15,7 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include <signal.h>
+#include <errno.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
@@ -40,7 +43,8 @@ int main(int argc, char *argv[])
 	void * thread_return;
 	int ret;
 	struct sockaddr_rc addr = { 0 };
-  	char dest[18] = "98:DA:60:07:F6:5B";	//bt16
+  	//char dest[18] = "E0:5E:54:89:DB:66";	//bt39
+	char dest[18] = "98:DA:60:07:D6:C4";// bt38
 	char msg[BUF_SIZE];
 
 	if(argc != 4) {
@@ -65,20 +69,43 @@ int main(int argc, char *argv[])
 	sprintf(msg,"[%s:PASSWD]",name);
 	write(dev_fd.sockfd, msg, strlen(msg));
 
-	dev_fd.btfd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-	if(dev_fd.btfd == -1){
-		perror("socket()");
-		exit(1);
-	}
+	dev_fd.btfd = -1;
+	memset(dev_fd.sendid, 0, sizeof(dev_fd.sendid));
 
 	// set the connection parameters (who to connect to)
 	addr.rc_family = AF_BLUETOOTH;
 	addr.rc_channel = (uint8_t)1;
 	str2ba(dest, &addr.rc_bdaddr);
 
-	ret = connect(dev_fd.btfd, (struct sockaddr *)&addr, sizeof(addr));
+	/*
+	 * RFCOMM connect()에서 EINPROGRESS(Operation now in progress)가 나오면
+	 * 즉시 종료하지 않고 재시도합니다. HC-05가 아직 연결 준비 중이거나
+	 * 직전 연결이 TIME_WAIT처럼 남아 있을 때 현장에서 자주 보입니다.
+	 */
+	ret = -1;
+	for(int retry = 0; retry < 15; retry++)
+	{
+		dev_fd.btfd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+		if(dev_fd.btfd == -1){
+			perror("socket()");
+			exit(1);
+		}
+
+		ret = connect(dev_fd.btfd, (struct sockaddr *)&addr, sizeof(addr));
+		if(ret == 0)
+		{
+			printf("Bluetooth connected: %s channel %d\n", dest, 1);
+			break;
+		}
+
+		fprintf(stderr, "bluetooth connect retry %d/15: %s\n", retry + 1, strerror(errno));
+		close(dev_fd.btfd);
+		dev_fd.btfd = -1;
+		sleep(1);
+	}
+
 	if(ret == -1){
-		perror("connect()");
+		fprintf(stderr, "Bluetooth connect failed. Check pairing/trust, MAC address, rfcomm channel, and STM32 BT power.\n");
 		exit(1);
 	}
 
@@ -203,3 +230,4 @@ void error_handling(char * msg)
 	fputc('\n', stderr);
 	exit(1);
 }
+
