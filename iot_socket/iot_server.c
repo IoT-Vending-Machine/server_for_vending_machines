@@ -414,6 +414,11 @@ static int handle_server_command(const char *from, const char *to, const char *p
                 p3 = strtok(NULL, "@:");
                 if(p1 == NULL || p2 == NULL || p3 == NULL) return 1;
                 db_sensor(from, (float)atof(p1), (float)atof(p2), atoi(p3));
+
+                char payload_sensor_ok[96];
+                snprintf(payload_sensor_ok, sizeof(payload_sensor_ok),
+                         "SENSOR_OK@%s@%s@%s", p1, p2, p3);
+                route_to_id(first_client_info, from, ID_SQL, payload_sensor_ok);
                 return 1;
         }
         else if(!strcmp(cmd, "RESTOCK"))
@@ -454,6 +459,9 @@ static int handle_server_command(const char *from, const char *to, const char *p
                 snprintf(payload_ok, sizeof(payload_ok), "RESTOCK_OK@LOCAL@%d@ALL@%d", before.local_missing, before.all_missing);
                 route_to_id(first_client_info, from, ID_SQL, payload_ok);
                 route_to_id(first_client_info, ID_LIN, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_ARD, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_VM01, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_VM02, ID_SQL, payload_ok);
                 return 1;
         }
         else if(!strcmp(cmd, "RESET"))
@@ -473,6 +481,9 @@ static int handle_server_command(const char *from, const char *to, const char *p
                 snprintf(payload_ok, sizeof(payload_ok), "RESET_OK@LOCAL@%d@ALL@%d", before.local_missing, before.all_missing);
                 route_to_id(first_client_info, from, ID_SQL, payload_ok);
                 route_to_id(first_client_info, ID_LIN, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_ARD, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_VM01, ID_SQL, payload_ok);
+                route_to_id(first_client_info, ID_VM02, ID_SQL, payload_ok);
                 return 1;
         }
 
