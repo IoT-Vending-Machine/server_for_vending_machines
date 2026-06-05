@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IoT Vending Dashboard</title>
+  <style>
+    html, body { height:100%; margin:0; font-family:Arial, 'Noto Sans KR', sans-serif; }
+    body { display:flex; background:#f6f8fb; }
+    nav { width:240px; background:#0f172a; color:white; padding:18px; box-sizing:border-box; }
+    nav h1 { font-size:20px; margin:0 0 18px; }
+    nav a { display:block; color:#e5e7eb; text-decoration:none; padding:10px 12px; border-radius:8px; margin-bottom:6px; }
+    nav a:hover { background:#1e293b; }
+    iframe { flex:1; border:0; height:100vh; }
+  </style>
+</head>
+<body>
+  <nav>
+    <h1>IoT Vending</h1>
+    <a href="iot_dashboard.php" target="main">대시보드</a>
+    <a href="iot_stockGraph.php" target="main">재고 그래프</a>
+    <a href="iot_stockTable.php" target="main">재고 표</a>
+    <a href="iot_salesGraph.php" target="main">판매 그래프</a>
+    <a href="iot_salesTable.php" target="main">판매 상세</a>
+    <a href="iot_sensorGraph.php" target="main">센서 그래프</a>
+    <a href="iot_sensorTable.php" target="main">센서 표</a>
+    <a href="iot_refillGraph.php" target="main">리필 그래프</a>
+    <a href="iot_refillTable.php" target="main">리필 이력</a>
+    <a href="iot_salesConditionGraph.php" target="main">센서 조건별 판매 그래프</a>
+    <a href="iot_salesConditionTable.php" target="main">센서 조건별 판매 표</a>
+    <a href="iot_hourlyMonthlyGraph.php" target="main">월별/시간대 판매 그래프</a>
+    <a href="iot_hourlyMonthlyTable.php" target="main">월별/시간대 판매 표</a>
+  </nav>
+  <iframe name="main" src="iot_dashboard.php"></iframe>
+</body>
+</html>
